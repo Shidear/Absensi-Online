@@ -108,32 +108,34 @@
                     <div class="bg-slate-50 p-6 rounded-lg border border-slate-200">
                          <h2 class="text-xl font-semibold text-slate-700 mb-4">Absensi Hari Ini</h2>
                          <div id="studentNotification" class="hidden mb-6 p-4 rounded-md text-sm"></div>
-                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
-                            <div>
-                                <label for="attendanceStatus" class="block text-sm font-medium text-slate-700 mb-1">Status Kehadiran</label>
-                                <select id="attendanceStatus" class="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500">
-                                    <option>Hadir</option>
-                                    <option>Izin</option>
-                                    <option>Sakit</option>
-                                </select>
-                            </div>
-                            <div id="izinReasonContainer" class="hidden">
-                                <label for="izinReason" class="block text-sm font-medium text-slate-700 mb-1">Alasan Izin</label>
-                                <input type="text" id="izinReason" class="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm" placeholder="Contoh: Acara keluarga">
-                            </div>
-                             <div id="sakitReasonContainer" class="hidden">
-                                <label for="sakitReason" class="block text-sm font-medium text-slate-700 mb-1">Keterangan Sakit</label>
-                                <input type="text" id="sakitReason" class="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm" placeholder="Contoh: Demam">
-                            </div>
-                            <div id="proofContainer" class="hidden md:col-span-2">
-                                <label for="attendanceProof" class="block text-sm font-medium text-slate-700 mb-1">Unggah Foto Bukti (Wajib)</label>
-                                <input type="file" id="attendanceProof" accept="image/*" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100">
-                                <img id="imagePreview" class="hidden mt-4 max-h-40 rounded-lg shadow-sm" src="" alt="Pratinjau Bukti">
-                            </div>
-                            <div class="md:col-span-2">
-                                 <button id="submitAttendance" class="w-full bg-teal-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition duration-300">Kirim Absensi</button>
-                            </div>
-                         </div>
+                         <form id="attendanceForm">
+                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+                                <div>
+                                    <label for="attendanceStatus" class="block text-sm font-medium text-slate-700 mb-1">Status Kehadiran</label>
+                                    <select id="attendanceStatus" class="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none">
+                                        <option>Hadir</option>
+                                        <option>Izin</option>
+                                        <option>Sakit</option>
+                                    </select>
+                                </div>
+                                <div id="izinReasonContainer" class="hidden">
+                                    <label for="izinReason" class="block text-sm font-medium text-slate-700 mb-1">Alasan Izin</label>
+                                    <input type="text" id="izinReason" class="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none" placeholder="Contoh: Acara keluarga">
+                                </div>
+                                 <div id="sakitReasonContainer" class="hidden">
+                                    <label for="sakitReason" class="block text-sm font-medium text-slate-700 mb-1">Keterangan Sakit</label>
+                                    <input type="text" id="sakitReason" class="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none" placeholder="Contoh: Demam">
+                                </div>
+                                <div id="proofContainer" class="hidden md:col-span-2">
+                                    <label for="attendanceProof" class="block text-sm font-medium text-slate-700 mb-1">Unggah Foto Bukti (Wajib)</label>
+                                    <input type="file" id="attendanceProof" accept="image/*" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <img id="imagePreview" class="hidden mt-4 max-h-40 rounded-lg shadow-sm" src="" alt="Pratinau Bukti">
+                                </div>
+                                <div class="md:col-span-2">
+                                     <button id="submitAttendance" type="submit" class="w-full bg-teal-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition duration-300 disabled:bg-slate-400 disabled:cursor-not-allowed">Kirim Absensi</button>
+                                </div>
+                             </div>
+                         </form>
                     </div>
 
                     <!-- Riwayat Absensi -->
@@ -591,19 +593,30 @@
         const hasAttendedToday = attendanceRecords.some(r => r.nis === currentUser.nis && r.date === today);
         const notifBox = document.getElementById('studentNotification');
         const submitButton = document.getElementById('submitAttendance');
+        const izinReasonInput = document.getElementById('izinReason');
+        const sakitReasonInput = document.getElementById('sakitReason');
 
         if (hasAttendedToday) {
             notifBox.innerHTML = "Absensi untuk hari ini sudah tercatat.";
             notifBox.className = 'mb-6 p-4 rounded-md text-sm bg-teal-100 text-teal-800';
             notifBox.classList.remove('hidden');
+            
+            // Menonaktifkan semua elemen form
             submitButton.disabled = true;
-            submitButton.classList.add('bg-gray-400', 'cursor-not-allowed');
             attendanceStatusSelect.disabled = true;
+            izinReasonInput.disabled = true;
+            sakitReasonInput.disabled = true;
+            attendanceProofInput.disabled = true;
+
         } else {
             notifBox.classList.add('hidden');
+
+            // Mengaktifkan semua elemen form
             submitButton.disabled = false;
-            submitButton.classList.remove('bg-gray-400', 'cursor-not-allowed');
             attendanceStatusSelect.disabled = false;
+            izinReasonInput.disabled = false;
+            sakitReasonInput.disabled = false;
+            attendanceProofInput.disabled = false;
             attendanceStatusSelect.value = 'Hadir';
         }
         
@@ -635,7 +648,8 @@
         renderStudentAttendanceChart();
     };
 
-    document.getElementById('submitAttendance').addEventListener('click', () => {
+    document.getElementById('attendanceForm').addEventListener('submit', (e) => {
+        e.preventDefault(); // Mencegah reload halaman
         const status = attendanceStatusSelect.value;
         const proofFile = attendanceProofInput.files[0];
         const notifBox = document.getElementById('studentNotification');
