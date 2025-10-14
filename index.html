@@ -160,14 +160,10 @@
     <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-60 z-50 hidden items-center justify-center p-4"><div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full relative animate-fadeIn text-center"><div id="confirmationModalIcon" class="mx-auto mb-4"></div><h3 id="confirmationModalTitle" class="text-lg font-semibold text-gray-800 mb-2"></h3><p id="confirmationModalMessage" class="text-sm text-gray-600 mb-6"></p><button id="closeConfirmationModal" class="w-full bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700 transition">Tutup</button></div></div>
 
     <script type="module">
-        // ===================================================================================
-        // KONFIGURASI SUPABASE
-        // ===================================================================================
-        const SUPABASE_URL = 'https://mcajcernepwzqgfgjvrt.supabase.co'; // <-- GANTI DENGAN URL PROYEK SUPABASE ANDA
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jYWpjZXJuZXB3enFnZmdqdnJ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg2NzA1MDksImV4cCI6MjA3NDI0NjUwOX0._qwBBNnRD5_n8be8LndKiCTia0SFzJa9x7m4ztpmwn4'; // <-- GANTI DENGAN KUNCI ANON SUPABASE ANDA
-        // ===================================================================================
+        const SUPABASE_URL = 'https://mcajcernepwzqgfgjvrt.supabase.co'; 
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jYWpjZXJuZXB3enFnZmdqdnJ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg2NzA1MDksImV4cCI6MjA3NDI0NjUwOX0._qwBBNnRD5_n8be8LndKiCTia0SFzJa9x7m4ztpmwn4';
 
-        if (!SUPABASE_URL || !SUPABASE_ANON_KEY || SUPABASE_URL.includes('URL_PROYEK')) {
+        if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
             document.body.innerHTML = `<div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 max-w-2xl mx-auto" role="alert"><p class="font-bold">Konfigurasi Diperlukan</p><p>Harap masukkan URL Proyek dan Kunci Anon Supabase Anda di dalam tag &lt;script&gt; file index.html untuk menghubungkan aplikasi.</p></div>`;
             throw new Error("Supabase URL and Key are not configured.");
         }
@@ -187,8 +183,9 @@
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(pageId)?.classList.add('active');
         };
+        
+        document.addEventListener("DOMContentLoaded",()=>{setTimeout(()=>{const t=document.getElementById("splashScreen");t.style.opacity="0",setTimeout(()=>{t.style.display="none",showPage("loginPage")},500)},1500)});
 
-        // --- AUTH & LOGIN ---
         document.getElementById("loginForm").addEventListener("submit", async (e) => {
             e.preventDefault();
             showLoading();
@@ -211,40 +208,63 @@
                 loginError.classList.remove("hidden");
             }
         });
-
-        const handleLogout = () => {
-            currentUser = null;
-            document.getElementById('loginForm').reset();
-            showPage('loginPage');
-        };
-
-        // --- DASHBOARD SISWA ---
-        const attendanceStatusSelect = document.getElementById('attendanceStatus'), izinReasonContainer = document.getElementById('izinReasonContainer'), sakitReasonContainer = document.getElementById('sakitReasonContainer'), proofContainer = document.getElementById('proofContainer'), attendanceProofInput = document.getElementById('attendanceProof'), imagePreview = document.getElementById('imagePreview'), proofLabel = document.getElementById('proofLabel'), lateWarning = document.getElementById('lateWarning');
         
-        attendanceStatusSelect.addEventListener('change', (e) => {
-            const selectedStatus = e.target.value;
+        const handleLogout = () => { currentUser = null; document.getElementById('loginForm').reset(); showPage('loginPage'); };
+        
+        const attendanceStatusSelect=document.getElementById("attendanceStatus"),izinReasonContainer=document.getElementById("izinReasonContainer"),sakitReasonContainer=document.getElementById("sakitReasonContainer"),proofContainer=document.getElementById("proofContainer"),attendanceProofInput=document.getElementById("attendanceProof"),imagePreview=document.getElementById("imagePreview"),proofLabel=document.getElementById("proofLabel"),lateWarning=document.getElementById("lateWarning");
+        attendanceStatusSelect.addEventListener("change",t=>{const e=t.target.value;lateWarning.classList.add("hidden");const a="Hadir"===e||"Izin"===e||"Sakit"===e;izinReasonContainer.classList.toggle("hidden","Izin"!==e),sakitReasonContainer.classList.toggle("hidden","Sakit"!==e),proofContainer.classList.toggle("hidden",!a),attendanceProofInput.required=a,"Hadir"===e?proofLabel.textContent="Unggah Foto Selfie (Wajib)":"Izin"===e||"Sakit"===e?proofLabel.textContent="Unggah Foto Bukti (Wajib)":void 0});
+        attendanceProofInput.addEventListener("change",()=>{const t=attendanceProofInput.files[0];if(t){const e=new FileReader;e.onload=t=>{imagePreview.src=t.target.result,imagePreview.classList.remove("hidden")},e.readAsDataURL(t)}else imagePreview.classList.add("hidden")});
+        document.getElementById("navStudentAttendance").addEventListener("click",()=>{document.getElementById("studentAttendanceSection").classList.remove("hidden"),document.getElementById("studentStatsSection").classList.add("hidden"),document.getElementById("navStudentAttendance").classList.add("active"),document.getElementById("navStudentStats").classList.remove("active")});
+        document.getElementById("navStudentStats").addEventListener("click",()=>{document.getElementById("studentAttendanceSection").classList.add("hidden"),document.getElementById("studentStatsSection").classList.remove("hidden"),document.getElementById("navStudentAttendance").classList.remove("active"),document.getElementById("navStudentStats").classList.add("active")});
+        
+        const centerTextPlugin={id:"centerText",beforeDraw:function(t){if(!0===t.config.options.plugins.centerText?.display){const e=t.ctx,a=t.chartArea;if(!a)return;const s=t.data.datasets[0].data.reduce((t,e)=>t+e,0),i=t.data.datasets[0].data[0]||0;let n=0;s>0&&(n=(100*i/s).toFixed(0));const o=`${n}%`,d="Kehadiran";e.save();const l=(a.left+a.right)/2,r=(a.top+a.bottom)/2,c=a.height/5;e.font=`bold ${c}px Inter, sans-serif`,e.fillStyle="#312e81",e.textAlign="center",e.textBaseline="middle",e.fillText(o,l,r-c/2.5);const h=a.height/14;e.font=`normal ${h}px Inter, sans-serif`,e.fillStyle="#475569",e.fillText(d,l,r+1.5*h),e.restore()}}};
+        
+        async function renderStudentAttendanceChart(allRecords, allSchoolDays) { /* ... */ }
+        async function renderStudentRanking(allRecords, allStudentsInClass) { /* ... */ }
+        
+        function disableAttendanceForm(t,e="info"){const a=document.getElementById("studentNotification");a.textContent=t,a.className="info"===e?"mb-4 p-4 rounded-lg text-sm bg-sky-100 text-sky-800":"success"===e?"mb-4 p-4 rounded-lg text-sm bg-emerald-100 text-emerald-800":"error"===e?"mb-4 p-4 rounded-lg text-sm bg-rose-100 text-rose-800":a.className,a.classList.remove("hidden"),Array.from(document.getElementById("attendanceForm").elements).forEach(t=>t.disabled=!0)}
+        
+        async function renderStudentDashboard(){
+            showLoading();
+            document.getElementById('studentInfo').innerHTML = `Selamat datang, <span class="font-semibold">${currentUser.name}</span> (NIS: <span class="font-semibold">${currentUser.nis}</span>)`;
+            
+            const today = getTodayDateString();
+            const { data: todayRecord } = await db.from('attendance_records').select('id').eq('nis', currentUser.nis).eq('date', today).maybeSingle();
+
             lateWarning.classList.add('hidden');
-            const proofRequired = ['Hadir', 'Izin', 'Sakit'].includes(selectedStatus);
-            izinReasonContainer.classList.toggle('hidden', selectedStatus !== 'Izin');
-            sakitReasonContainer.classList.toggle('hidden', selectedStatus !== 'Sakit');
-            proofContainer.classList.toggle('hidden', !proofRequired);
-            attendanceProofInput.required = proofRequired;
-            if (selectedStatus === 'Hadir') proofLabel.textContent = 'Unggah Foto Selfie (Wajib)';
-            else if (['Izin', 'Sakit'].includes(selectedStatus)) proofLabel.textContent = 'Unggah Foto Bukti (Wajib)';
-        });
-
-        attendanceProofInput.addEventListener('change', () => {
-            const file = attendanceProofInput.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => { imagePreview.src = e.target.result; imagePreview.classList.remove('hidden'); };
-                reader.readAsDataURL(file);
+            if (todayRecord) {
+                disableAttendanceForm('Absensi untuk hari ini sudah tercatat.', 'success');
             } else {
-                imagePreview.classList.add('hidden');
-            }
-        });
+                const currentTime = new Date();
+                const startTime = new Date(today); startTime.setHours(6, 0, 0, 0);
+                const endTime = new Date(today); endTime.setHours(9, 0, 0, 0);
+                const warningTime = new Date(today); warningTime.setHours(7, 0, 0, 0);
 
-        document.getElementById("attendanceForm").addEventListener("submit", async (e) => {
+                if (currentTime < startTime) {
+                    disableAttendanceForm('Absensi baru akan dibuka pada pukul 06:00.');
+                } else if (currentTime > endTime) {
+                    await db.from('attendance_records').insert({ nis: currentUser.nis, date: today, status: 'Alfa', keterangan: 'Absen melewati batas waktu' });
+                    await renderStudentDashboard();
+                    return;
+                } else {
+                    Array.from(document.getElementById('attendanceForm').elements).forEach(el => el.disabled = false);
+                    if (currentTime > warningTime) lateWarning.classList.remove('hidden');
+                }
+            }
+            
+            const historyTable = document.getElementById('attendanceHistory');
+            historyTable.innerHTML = '';
+            const { data: records } = await db.from('attendance_records').select('*').eq('nis', currentUser.nis).order('date', { ascending: false });
+            if(records) records.forEach(record => {
+                const statusColor = { "Hadir": "bg-emerald-100 text-emerald-800", "Izin": "bg-amber-100 text-amber-800", "Sakit": "bg-orange-100 text-orange-800", "Alfa": "bg-rose-100 text-rose-800"}[record.status] || "bg-gray-100";
+                const lateMark = (record.status === 'Hadir' && record.isLate) ? `<span class="text-xs text-rose-500 ml-2">(Terlambat)</span>` : '';
+                const newNoteBadge = record.hasNewNote ? `<span class="ml-2 text-xs font-semibold bg-rose-500 text-white px-2 py-1 rounded-full">Baru!</span>` : '';
+                historyTable.innerHTML += `<tr class="hover:bg-gray-50"><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(record.date).toLocaleDateString("id-ID",{weekday:"long",year:"numeric",month:"long",day:"numeric"})}</td><td class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColor}">${record.status}</span>${lateMark}</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${record.keterangan||"-"}</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${record.notes||''}${newNoteBadge}</td></tr>`;
+            });
+            hideLoading();
+        }
+
+        document.getElementById("attendanceForm").addEventListener("submit", async(e) => {
             e.preventDefault();
             const status = attendanceStatusSelect.value;
             if (!status) { showConfirmationModal('error', 'Gagal!', 'Anda harus memilih status kehadiran.'); return; }
@@ -264,17 +284,12 @@
             const currentTime = new Date();
             const lateTime = new Date(getTodayDateString()); lateTime.setHours(6, 30, 0, 0);
             const isLate = status === 'Hadir' && currentTime > lateTime;
-            const newRecord = {
-                nis: currentUser.nis, date: getTodayDateString(), status: status,
-                keterangan: status === 'Izin' ? document.getElementById('izinReason').value : (status === 'Sakit' ? document.getElementById('sakitReason').value : ''),
-                proof: proofUrl, isLate: isLate, submissionTime: new Date().toISOString()
-            };
+            const newRecord = { nis: currentUser.nis, date: getTodayDateString(), status, keterangan: status === 'Izin' ? document.getElementById('izinReason').value : (status === 'Sakit' ? document.getElementById('sakitReason').value : ''), proof: proofUrl, isLate, submissionTime: new Date().toISOString() };
 
             const { error: insertError } = await db.from('attendance_records').insert(newRecord);
             hideLoading();
             if (insertError) {
-                showConfirmationModal('error', 'Gagal', 'Gagal menyimpan data absensi.');
-                console.error(insertError);
+                showConfirmationModal('error', 'Gagal', 'Gagal menyimpan data absensi.'); console.error(insertError);
             } else {
                 let msg = "Absensi Anda telah berhasil dicatat.";
                 if(isLate) msg += " Anda tercatat terlambat.";
@@ -282,58 +297,12 @@
                 await renderStudentDashboard();
             }
         });
-
-        async function renderStudentDashboard() {
-            showLoading();
-            document.getElementById('studentInfo').innerHTML = `Selamat datang, <span class="font-semibold">${currentUser.name}</span> (NIS: <span class="font-semibold">${currentUser.nis}</span>)`;
-            
-            // Cek absensi hari ini
-            const today = getTodayDateString();
-            const { data: todayRecord, error: todayError } = await db.from('attendance_records').select('id').eq('nis', currentUser.nis).eq('date', today).maybeSingle();
-
-            lateWarning.classList.add('hidden');
-            if (todayRecord) {
-                disableAttendanceForm('Absensi untuk hari ini sudah tercatat.', 'success');
-            } else {
-                const currentTime = new Date();
-                const startTime = new Date(today); startTime.setHours(6, 0, 0, 0);
-                const endTime = new Date(today); endTime.setHours(9, 0, 0, 0);
-                const warningTime = new Date(today); warningTime.setHours(7, 0, 0, 0);
-
-                if (currentTime < startTime) disableAttendanceForm('Absensi baru akan dibuka pada pukul 06:00.');
-                else if (currentTime > endTime) {
-                    await db.from('attendance_records').insert({ nis: currentUser.nis, date: today, status: 'Alfa', keterangan: 'Absen melewati batas waktu' });
-                    await renderStudentDashboard(); // Panggil ulang untuk disable form
-                    return;
-                } else {
-                    Array.from(document.getElementById('attendanceForm').elements).forEach(el => el.disabled = false);
-                    if (currentTime > warningTime) lateWarning.classList.remove('hidden');
-                }
-            }
-            
-            // Render riwayat
-            const historyTable = document.getElementById('attendanceHistory');
-            historyTable.innerHTML = '';
-            const { data: records, error: recordsError } = await db.from('attendance_records').select('*').eq('nis', currentUser.nis).order('date', { ascending: false });
-            if(records) records.forEach(record => {
-                const statusColor = { "Hadir": "bg-emerald-100 text-emerald-800", "Izin": "bg-amber-100 text-amber-800", "Sakit": "bg-orange-100 text-orange-800", "Alfa": "bg-rose-100 text-rose-800"}[record.status] || "bg-gray-100";
-                const lateMark = (record.status === 'Hadir' && record.isLate) ? `<span class="text-xs text-rose-500 ml-2">(Terlambat)</span>` : '';
-                const newNoteBadge = record.hasNewNote ? `<span class="ml-2 text-xs font-semibold bg-rose-500 text-white px-2 py-1 rounded-full">Baru!</span>` : '';
-                historyTable.innerHTML += `<tr class="hover:bg-gray-50"><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(record.date).toLocaleDateString("id-ID",{weekday:"long",year:"numeric",month:"long",day:"numeric"})}</td><td class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColor}">${record.status}</span>${lateMark}</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${record.keterangan||"-"}</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${record.notes||''}${newNoteBadge}</td></tr>`;
-            });
-
-            await Promise.all([renderStudentRanking(), renderStudentAttendanceChart()]);
-            hideLoading();
-        }
-
-        async function renderStudentRanking() { /* ... */ }
-        async function renderStudentAttendanceChart() { /* ... */ }
-        function disableAttendanceForm(message, type = 'info') { /* ... */ }
-
-        // --- DASHBOARD GURU ---
+        
         async function renderAdminDashboard() {
             showLoading();
             document.getElementById('adminInfo').innerHTML = `Selamat datang, <span class="font-semibold">${currentUser.name} (Wali Kelas ${currentUser.kelas})</span>.`;
+            document.getElementById('filterDate').value = getTodayDateString();
+            
             const filterDate = document.getElementById('filterDate').value;
 
             const { data: studentsInClass, error: studentError } = await db.from('students_data').select('nis, name').eq('kelas', currentUser.kelas);
@@ -368,26 +337,18 @@
             hideLoading();
         }
 
-        // --- DASHBOARD SUPER ADMIN ---
-        async function renderSuperAdminDashboard() { /* ... */ }
-        async function renderTeacherAccountManagement() { /* ... */ }
-        async function renderAllStudentAccountManagement() { /* ... */ }
+        async function renderSuperAdminDashboard() { hideLoading(); }
+        
+        function showConfirmationModal(type, title, message) {
+            const iconContainer = document.getElementById('confirmationModalIcon');
+            iconContainer.innerHTML = type === 'success' ? `<svg class="h-12 w-12 text-emerald-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>` : `<svg class="h-12 w-12 text-rose-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg>`;
+            document.getElementById('confirmationModalTitle').textContent = title;
+            document.getElementById('confirmationModalMessage').textContent = message;
+            document.getElementById('confirmationModal').classList.replace('hidden', 'flex');
+        }
 
-        // --- MODALS & INIT ---
-        function showConfirmationModal(type, title, message) { /* ... */ }
-        
-        // Event Listeners
+        document.getElementById('closeConfirmationModal').addEventListener('click', () => document.getElementById('confirmationModal').classList.replace('flex', 'hidden'));
         document.querySelectorAll('[id^=logout]').forEach(btn => btn.addEventListener('click', handleLogout));
-        document.getElementById('navStudentAttendance').addEventListener('click', () => { document.getElementById('studentAttendanceSection').classList.remove('hidden'); document.getElementById('studentStatsSection').classList.add('hidden'); document.getElementById('navStudentAttendance').classList.add('active'); document.getElementById('navStudentStats').classList.remove('active'); });
-        document.getElementById('navStudentStats').addEventListener('click', () => { document.getElementById('studentAttendanceSection').classList.add('hidden'); document.getElementById('studentStatsSection').classList.remove('hidden'); document.getElementById('navStudentAttendance').classList.remove('active'); document.getElementById('navStudentStats').classList.add('active'); });
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                const splash = document.getElementById('splashScreen');
-                splash.style.opacity = '0';
-                setTimeout(() => { splash.style.display = 'none'; showPage('loginPage'); }, 500);
-            }, 1500);
-        });
     </script>
 </body>
 </html>
